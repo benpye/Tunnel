@@ -19,12 +19,16 @@ namespace Tunnel
         private string _endpointHost;
         private int _endpointPort;
 
-        public Server(int httpPort, string endpoint, int endpointPort)
+        private byte[] _buffer;
+
+        public Server(int httpPort, string endpointHost, int endpointPort, int bufferSize)
         {
             _httpServer = new HttpServer(httpPort, HandleRequest);
 
-            _endpointHost = endpoint;
+            _endpointHost = endpointHost;
             _endpointPort = endpointPort;
+
+            _buffer = new byte[bufferSize];
         }
 
         public Task RunAsync()
@@ -70,11 +74,9 @@ namespace Tunnel
 
             if (_endpointStream.DataAvailable)
             {
-                // Replace 2048 by arg
-                var tempBuffer = new byte[2048];
-                int bytesRead = _endpointStream.Read(tempBuffer, 0, tempBuffer.Length);
+                int bytesRead = _endpointStream.Read(_buffer, 0, _buffer.Length);
 
-                var b64 = Encoding.ASCII.GetBytes(Convert.ToBase64String(tempBuffer, 0, bytesRead));
+                var b64 = Encoding.ASCII.GetBytes(Convert.ToBase64String(_buffer, 0, bytesRead));
 
                 ctx.Response.ContentLength64 = b64.LongLength;
 

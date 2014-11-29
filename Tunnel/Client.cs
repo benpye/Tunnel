@@ -17,13 +17,15 @@ namespace Tunnel
         private TcpClient _endpointClient;
         private NetworkStream _endpointStream;
         private bool _newStream;
+        private byte[] _buffer;
 
-        public Client(string httpHost, int httpPort, int endpointPort)
+        public Client(string httpHost, int httpPort, int endpointPort, int bufferSize)
         {
             _endpoint = new TcpListener(IPAddress.Loopback, endpointPort);
             _endpoint.Start();
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri("http://\{httpHost}:\{httpPort}/");
+            _buffer = new byte[bufferSize];
         }
 
        public void AcceptClient()
@@ -52,11 +54,9 @@ namespace Tunnel
 
             if (_endpointStream.DataAvailable)
             {
-                // Replace 2048 by arg
-                var tempBuffer = new byte[2048];
-                int bytesRead = _endpointStream.Read(tempBuffer, 0, tempBuffer.Length);
+                int bytesRead = _endpointStream.Read(_buffer, 0, _buffer.Length);
 
-                StringContent content = new StringContent(Convert.ToBase64String(tempBuffer, 0, bytesRead));
+                StringContent content = new StringContent(Convert.ToBase64String(_buffer, 0, bytesRead));
 
                 msg = await _httpClient.PostAsync(_newStream ? "/new" : "", content);
             }
