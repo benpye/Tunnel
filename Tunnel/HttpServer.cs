@@ -15,7 +15,7 @@ namespace Tunnel
         public HttpServer(int port, Action<HttpListenerContext> method)
         {
             _listener = new HttpListener();
-            _listener.Prefixes.Add("http://+:\{port}/");
+            _listener.Prefixes.Add($"http://+:{port}/");
 
             _callback = method;
 

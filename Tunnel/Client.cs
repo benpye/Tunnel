@@ -24,7 +24,7 @@ namespace Tunnel
             _endpoint = new TcpListener(IPAddress.Loopback, endpointPort);
             _endpoint.Start();
             _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri("http://\{httpHost}:\{httpPort}/");
+            _httpClient.BaseAddress = new Uri($"http://{httpHost}:{httpPort}/");
             _buffer = new byte[bufferSize];
         }
 
